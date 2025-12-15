@@ -3327,13 +3327,21 @@ namespace JRunner.Nand
             }
         }
 
-        public static string extend16mbTo64mb(string flashFilePath)
+        public static string extend16mbTo64mb(string flashFilePath, bool sequenced)
         {
             string flashFileResultPath = flashFilePath + "_aligned.bin";
 
             byte[] flashData = File.ReadAllBytes(flashFilePath);
             
             int blockType = 0;
+
+            // This operation is sequenced as part of a xeBuild operation
+            // We're operating on updflash.bin, so we can write the result
+            // back to the same path we read the input data from
+            if (sequenced)
+            {
+                flashFileResultPath = flashFilePath;
+            }
 
             if (flashData.Length != 17301504)
             {

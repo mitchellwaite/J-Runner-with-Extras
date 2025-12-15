@@ -1024,6 +1024,29 @@ namespace JRunner.Classes
             }
         }
 
+        private bool needToExtend16mbTo64mb()
+        {
+            // If we've selected the following options, xeBuild is building
+            // a 16mb image that needs to be extended to 64mb
+            // 
+            // 1) The console is a 64mb xenon, zephyr, or falcon
+            // 2) "hack type" is retail/glitch(1,2,2m)/jtag
+
+            if ( (_ctype.ID == 7 || _ctype.ID == 13 || _ctype.ID == 14) &&
+                 (_ttype == variables.hacktypes.retail   ||
+                  _ttype == variables.hacktypes.glitch   ||
+                  _ttype == variables.hacktypes.glitch2  ||
+                  _ttype == variables.hacktypes.glitch2m ||
+                  _ttype == variables.hacktypes.jtag) )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         private bool isAffectedByXeBuildImageBug()
         {
             // If we've selected the following options, we're building an image
@@ -1267,6 +1290,13 @@ namespace JRunner.Classes
                     if(isAffectedByXeBuildImageBug())
                     {
                         Nand.Nand.fixBuggyXeBuildImage(Path.Combine(variables.xefolder, variables.updflash));
+                    }
+
+                    // This is a hack to extend 16mb xeBuild images to 64mb
+                    // The image is padded with valid ECC and the SMC config is moved to the correct location
+                    if (needToExtend16mbTo64mb())
+                    {
+                        Nand.Nand.extend16mbTo64mb(Path.Combine(variables.xefolder, variables.updflash), true);
                     }
 
                     if (_xdkbuild && _rgh3)
