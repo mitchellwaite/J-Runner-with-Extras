@@ -34,7 +34,6 @@ namespace JRunner.Classes
         private bool _CleanSMC;
         private bool _rgh3;
         private bool _bigffs;
-        private bool _zfuse;
         private bool _xdkbuild;
         private bool _fullDataClean;
         private bool _altoptions;
@@ -48,8 +47,6 @@ namespace JRunner.Classes
         private bool _xlusb;
         private bool _xlhdd;
         private bool _xlboth;
-        private bool _usbdsec;
-        private bool _coronakeyfix;
         private Nand.PrivateN _nand;
         private List<string> _patches;
 
@@ -471,7 +468,7 @@ namespace JRunner.Classes
             Nand.Nand.zeroPairDevkitSb(Path.Combine(variables.xefolder, variables.updflash), true);
         }
 
-        public void loadvariables(string cpukey, variables.hacktypes ttype, string dash, consoles ctype, List<string> patches, Nand.PrivateN nand, bool altoptions, bool DLpatches, bool includeLaunch, bool audclamp, bool rjtag, bool cleansmc, bool cr4, bool smcp, bool rgh3, bool bigffs, bool zfuse, bool xdkbuild, bool xlusb, bool xlhdd, bool xlboth, bool usbdsec, bool coronakeyfix, bool fullDataClean)
+        public void loadvariables(string cpukey, variables.hacktypes ttype, string dash, consoles ctype, List<string> patches, Nand.PrivateN nand, bool altoptions, bool DLpatches, bool includeLaunch, bool audclamp, bool rjtag, bool cleansmc, bool cr4, bool smcp, bool rgh3, bool bigffs, bool xdkbuild, bool xlusb, bool xlhdd, bool xlboth, bool fullDataClean)
         {
             this._cpukey = cpukey;
             this._ttype = ttype;
@@ -489,13 +486,10 @@ namespace JRunner.Classes
             this._SMCP = smcp;
             this._rgh3 = rgh3;
             this._bigffs = bigffs;
-            this._zfuse = zfuse;
             this._xdkbuild = xdkbuild;
             this._xlusb = xlusb;
             this._xlhdd = xlhdd;
             this._xlboth = xlboth;
-            this._usbdsec = usbdsec;
-            this._coronakeyfix = coronakeyfix;
             this._fullDataClean = fullDataClean;
         }
 
@@ -1188,17 +1182,9 @@ namespace JRunner.Classes
                 arguments += " -c " + boardtype;
             }
 
-            if (_zfuse && _ttype == variables.hacktypes.devgl)
-            {
-                arguments += " -a hvfixkeys";
-            }
-
             if (_xlusb) arguments += " -a xl_usb";
             else if (_xlhdd) arguments += " -a xl_hdd";
             else if (_xlboth) arguments += " -a xl_both";
-
-            if (_usbdsec) arguments += " -a usbdsec";
-            if (_coronakeyfix) arguments += " -a corona_key_fix";
 
             foreach (String patch in _patches)
             {

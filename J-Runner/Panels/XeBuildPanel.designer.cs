@@ -41,7 +41,6 @@
             this.chkCR4 = new System.Windows.Forms.CheckBox();
             this.chkCleanSMC = new System.Windows.Forms.CheckBox();
             this.chkXdkBuild = new System.Windows.Forms.CheckBox();
-            this.chk0Fuse = new System.Windows.Forms.CheckBox();
             this.rbtnDevGL = new System.Windows.Forms.RadioButton();
             this.chkSMCP = new System.Windows.Forms.CheckBox();
             this.labelCB = new System.Windows.Forms.Label();
@@ -62,8 +61,6 @@
             this.rbtnGlitch = new System.Windows.Forms.RadioButton();
             this.tabPatches = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.chkCoronaKeyFix = new System.Windows.Forms.CheckBox();
-            this.chkUsbdSec = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.chkXLBoth = new System.Windows.Forms.CheckBox();
             this.chkXLHdd = new System.Windows.Forms.CheckBox();
@@ -111,7 +108,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.dashBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dashDataSet)).BeginInit();
             this.tabPatches.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabOptions.SuspendLayout();
             this.tabClient.SuspendLayout();
@@ -153,7 +149,6 @@
             this.tabXeBuild.Controls.Add(this.chkCR4);
             this.tabXeBuild.Controls.Add(this.chkCleanSMC);
             this.tabXeBuild.Controls.Add(this.chkXdkBuild);
-            this.tabXeBuild.Controls.Add(this.chk0Fuse);
             this.tabXeBuild.Controls.Add(this.rbtnDevGL);
             this.tabXeBuild.Controls.Add(this.chkSMCP);
             this.tabXeBuild.Controls.Add(this.labelCB);
@@ -289,19 +284,6 @@
         " in the common folder");
             this.chkXdkBuild.UseVisualStyleBackColor = true;
             this.chkXdkBuild.CheckedChanged += new System.EventHandler(this.chkXdkBuild_CheckedChanged);
-            // 
-            // chk0Fuse
-            // 
-            this.chk0Fuse.AutoSize = true;
-            this.chk0Fuse.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.chk0Fuse.Location = new System.Drawing.Point(229, 74);
-            this.chk0Fuse.Name = "chk0Fuse";
-            this.chk0Fuse.Size = new System.Drawing.Size(58, 17);
-            this.chk0Fuse.TabIndex = 22;
-            this.chk0Fuse.Text = "0 Fuse";
-            this.toolTip1.SetToolTip(this.chk0Fuse, "Check if building for a 0 Fuse console");
-            this.chk0Fuse.UseVisualStyleBackColor = true;
-            this.chk0Fuse.CheckedChanged += new System.EventHandler(this.chk0Fuse_CheckedChanged);
             // 
             // rbtnDevGL
             // 
@@ -525,40 +507,12 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.chkCoronaKeyFix);
-            this.groupBox2.Controls.Add(this.chkUsbdSec);
             this.groupBox2.Location = new System.Drawing.Point(210, 3);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(104, 61);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Other Patches";
-            // 
-            // chkCoronaKeyFix
-            // 
-            this.chkCoronaKeyFix.AutoSize = true;
-            this.chkCoronaKeyFix.Enabled = false;
-            this.chkCoronaKeyFix.Location = new System.Drawing.Point(21, 37);
-            this.chkCoronaKeyFix.Name = "chkCoronaKeyFix";
-            this.chkCoronaKeyFix.Size = new System.Drawing.Size(60, 17);
-            this.chkCoronaKeyFix.TabIndex = 1;
-            this.chkCoronaKeyFix.Text = "Key Fix";
-            this.toolTip1.SetToolTip(this.chkCoronaKeyFix, "Patch Freeboot to fix an issue on Corona that may affect certain games");
-            this.chkCoronaKeyFix.UseVisualStyleBackColor = true;
-            this.chkCoronaKeyFix.CheckedChanged += new System.EventHandler(this.chkCoronaKeyFix_CheckedChanged);
-            // 
-            // chkUsbdSec
-            // 
-            this.chkUsbdSec.AutoSize = true;
-            this.chkUsbdSec.Enabled = false;
-            this.chkUsbdSec.Location = new System.Drawing.Point(21, 18);
-            this.chkUsbdSec.Name = "chkUsbdSec";
-            this.chkUsbdSec.Size = new System.Drawing.Size(70, 17);
-            this.chkUsbdSec.TabIndex = 0;
-            this.chkUsbdSec.Text = "UsbdSec";
-            this.toolTip1.SetToolTip(this.chkUsbdSec, "Patch Freeboot to allow use of custom USB peripherals, like controllers");
-            this.chkUsbdSec.UseVisualStyleBackColor = true;
-            this.chkUsbdSec.CheckedChanged += new System.EventHandler(this.chkUsbdSec_CheckedChanged);
             // 
             // groupBox1
             // 
@@ -1044,8 +998,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.dashDataSet)).EndInit();
             this.tabPatches.ResumeLayout(false);
             this.tabPatches.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tabOptions.ResumeLayout(false);
@@ -1106,7 +1058,6 @@
         private System.Windows.Forms.ComboBox comboCB;
         private System.Windows.Forms.CheckBox chkSMCP;
         private System.Windows.Forms.RadioButton rbtnDevGL;
-        private System.Windows.Forms.CheckBox chk0Fuse;
         private System.Windows.Forms.CheckBox chkXdkBuild;
         private System.Windows.Forms.CheckBox chkCleanSMC;
         private System.Windows.Forms.CheckBox chkCR4;
@@ -1121,7 +1072,6 @@
         private System.Windows.Forms.CheckBox chkXLHdd;
         private System.Windows.Forms.Button btnShowAdvanced;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.CheckBox chkUsbdSec;
         private System.Windows.Forms.TabPage tabUpdate;
         private System.Windows.Forms.Label lblDash;
         private System.Windows.Forms.Label lblD;
@@ -1133,7 +1083,6 @@
         private System.Windows.Forms.CheckBox chkNoWrite;
         private System.Windows.Forms.Button btnXEUpdate;
         private System.Windows.Forms.CheckBox chkXLBoth;
-        private System.Windows.Forms.CheckBox chkCoronaKeyFix;
         private System.Windows.Forms.CheckBox chkElpis;
         private System.Windows.Forms.Label Rgh3Label2;
     }

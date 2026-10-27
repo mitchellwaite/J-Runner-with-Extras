@@ -2158,8 +2158,6 @@ namespace JRunner
                 variables.foundXlUsb = false;
                 variables.foundXlHdd = false;
                 variables.foundXlBoth = false;
-                variables.foundUsbdSec = false;
-                variables.foundCoronaKeyFix = false;
 
                 FileStream fs = new FileStream(variables.filename1, FileMode.Open);
                 byte[] patchesByte = new byte[0x5F230];
@@ -2240,8 +2238,6 @@ namespace JRunner
                 xPanel.setXLUSBChecked(variables.foundXlUsb);
                 xPanel.setXLHDDChecked(variables.foundXlHdd);
                 xPanel.setXLBothChecked(variables.foundXlBoth);
-                xPanel.setUsbdSecChecked(variables.foundUsbdSec);
-                xPanel.setCoronaKeyFixChecked(variables.foundCoronaKeyFix);
 
                 variables.gotvalues = !string.IsNullOrEmpty(variables.cpukey);
 

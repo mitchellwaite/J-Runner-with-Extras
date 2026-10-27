@@ -195,16 +195,7 @@ namespace JRunner.Panels
             if (check && !chkXLBoth.Enabled) return;
             chkXLBoth.Checked = check;
         }
-        public void setUsbdSecChecked(bool check)
-        {
-            if (check && !chkUsbdSec.Enabled) return;
-            chkUsbdSec.Checked = check;
-        }
-        public void setCoronaKeyFixChecked(bool check)
-        {
-            if (check && !chkCoronaKeyFix.Enabled) return;
-            chkCoronaKeyFix.Checked = check;
-        }
+
         public void setNoFcrtChecked(bool check)
         {
             chkListBoxPatches.SetItemChecked(0, check);
@@ -249,7 +240,6 @@ namespace JRunner.Panels
                 checkAvailableHackTypes();
                 checkWB(txt);
                 checkBigffs(txt);
-                checkDashAndConsoleSpecificPatches(txt);
 
                 if (txt.Contains("Winchester"))
                 {
@@ -327,7 +317,6 @@ namespace JRunner.Panels
             chkRgh3.Visible = rbtnGlitch2.Checked || rbtnGlitch2m.Checked;
             chkAudClamp.Visible = rbtnJtag.Checked;
             chkRJtag.Visible = rbtnJtag.Checked;
-            chk0Fuse.Visible = rbtnDevGL.Checked;
             chkElpis.Visible = rbtnGlitch2.Checked || rbtnGlitch2m.Checked;
 
             checkWBXdkBuild();
@@ -357,8 +346,6 @@ namespace JRunner.Panels
             }
 
             checkRgh3(variables.boardtype);
-
-            if (!rbtnDevGL.Checked) chk0Fuse.Checked = false;
 
             checkWB(variables.boardtype);
 
@@ -564,30 +551,6 @@ namespace JRunner.Panels
                 else chkXLBoth.Enabled = true;
             }
             else chkXLBoth.Checked = chkXLBoth.Enabled = false;
-
-            if (File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\bin\usbdsec.bin")))
-            {
-                if (rbtnRetail.Checked) chkUsbdSec.Checked = chkUsbdSec.Enabled = false;
-                else chkUsbdSec.Enabled = true;
-            }
-            else chkUsbdSec.Checked = chkUsbdSec.Enabled = false;
-
-            checkDashAndConsoleSpecificPatches(variables.boardtype);
-        }
-
-        private void checkDashAndConsoleSpecificPatches(string board)
-        {
-            if (board == null) board = "None";
-            if (File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\bin\corona_key_fix.bin")))
-            {
-                if (rbtnRetail.Checked) chkCoronaKeyFix.Checked = chkCoronaKeyFix.Enabled = false;
-                else
-                {
-                    if (board.Contains("Corona") || board.Contains("Winchester") || board.Contains("None")) chkCoronaKeyFix.Enabled = true;
-                    else chkCoronaKeyFix.Checked = chkCoronaKeyFix.Enabled = false;
-                }
-            }
-            else chkCoronaKeyFix.Checked = chkCoronaKeyFix.Enabled = false;
         }
 
         bool chkWB4GVis = false;
@@ -954,12 +917,6 @@ namespace JRunner.Panels
             else Console.WriteLine("Aud_Clamp deselected");
         }
 
-        private void chk0Fuse_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chk0Fuse.Checked) Console.WriteLine("0 Fuse selected");
-            else Console.WriteLine("0 Fuse deselected");
-        }
-
         private void chkXLUsb_CheckedChanged(object sender, EventArgs e)
         {
             if (chkXLUsb.Checked)
@@ -1000,18 +957,6 @@ namespace JRunner.Panels
             {
                 Console.WriteLine("Both XL deselected");
             }
-        }
-
-        private void chkUsbdSec_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chkUsbdSec.Checked) Console.WriteLine("UsbdSec selected");
-            else Console.WriteLine("UsbdSec deselected");
-        }
-
-        private void chkCoronaKeyFix_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chkCoronaKeyFix.Checked) Console.WriteLine("Corona Key Fix selected");
-            else Console.WriteLine("Corona Key Fix deselected");
         }
 
         private void btnGetMB_Click(object sender, EventArgs e)
@@ -1197,7 +1142,6 @@ namespace JRunner.Panels
             chkRJtag.Visible = false;
             chkAudClamp.Visible = false;
             chkBigffs.Enabled = false;
-            chk0Fuse.Visible = false;
         }
 
         private void chkNoWrite_CheckedChanged(object sender, EventArgs e)
@@ -1327,7 +1271,7 @@ namespace JRunner.Panels
             xe.loadvariables(nand._cpukey, (variables.hacktypes)variables.ttyp, variables.dashversion,
                              variables.ctype, patches, nand, chkXeSettings.Checked, checkDLPatches.Checked,
                              chkLaunch.Checked, chkAudClamp.Checked, chkRJtag.Checked, chkCleanSMC.Checked, chkCR4.Checked, chkSMCP.Checked, chkRgh3.Checked, chkBigffs.Checked,
-                             chk0Fuse.Checked, chkXdkBuild.Checked, chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, chkUsbdSec.Checked, chkCoronaKeyFix.Checked, fullDataClean);
+                             chkXdkBuild.Checked, chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, fullDataClean);
 
             string ini = (variables.launchpath + @"\" + variables.dashversion + @"\_" + variables.ttyp + ".ini");
 
@@ -1477,9 +1421,8 @@ namespace JRunner.Panels
                         xe.loadvariables(nand._cpukey, (variables.hacktypes)variables.ttyp, variables.dashversion,
                             variables.ctype, patches, nand, chkXeSettings.Checked, checkDLPatches.Checked,
                             chkLaunch.Checked, chkAudClamp.Checked, chkRJtag.Checked, chkCleanSMC.Checked,
-                            chkCR4.Checked, chkSMCP.Checked, chkRgh3.Checked, chkBigffs.Checked, chk0Fuse.Checked,
-                            chkXdkBuild.Checked, chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, chkUsbdSec.Checked,
-                            chkCoronaKeyFix.Checked, fullDataClean);
+                            chkCR4.Checked, chkSMCP.Checked, chkRgh3.Checked, chkBigffs.Checked,
+                            chkXdkBuild.Checked, chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, fullDataClean);
                         goto Start;
                     }
                 case Classes.xebuild.XebuildError.none:
