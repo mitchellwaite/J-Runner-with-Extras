@@ -2234,6 +2234,9 @@ namespace JRunner
                 // Elpis/Rhea Xenon
                 if ((nand.bl.CB_A >= 7373 && nand.bl.CB_A <= 7378) || (nand.bl.CB_B >= 7373 && nand.bl.CB_B <= 7378)) xPanel.setElpisChecked(true);
 
+                // Zeus/Kronos Xenon/Zephyr/Falcon
+                if ((nand.bl.CB_A >= 6712 && nand.bl.CB_A <= 6754) || (nand.bl.CB_B >= 6712 && nand.bl.CB_B <= 6754)) xPanel.setZeusKronosChecked(true);
+
                 // Patches
                 xPanel.setXLUSBChecked(variables.foundXlUsb);
                 xPanel.setXLHDDChecked(variables.foundXlHdd);

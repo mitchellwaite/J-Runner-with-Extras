@@ -47,6 +47,7 @@ namespace JRunner.Classes
         private bool _xlusb;
         private bool _xlhdd;
         private bool _xlboth;
+        private bool _jasperSbOverride;
         private Nand.PrivateN _nand;
         private List<string> _patches;
 
@@ -468,7 +469,7 @@ namespace JRunner.Classes
             Nand.Nand.zeroPairDevkitSb(Path.Combine(variables.xefolder, variables.updflash), true);
         }
 
-        public void loadvariables(string cpukey, variables.hacktypes ttype, string dash, consoles ctype, List<string> patches, Nand.PrivateN nand, bool altoptions, bool DLpatches, bool includeLaunch, bool audclamp, bool rjtag, bool cleansmc, bool cr4, bool smcp, bool rgh3, bool bigffs, bool xdkbuild, bool xlusb, bool xlhdd, bool xlboth, bool fullDataClean)
+        public void loadvariables(string cpukey, variables.hacktypes ttype, string dash, consoles ctype, List<string> patches, Nand.PrivateN nand, bool altoptions, bool DLpatches, bool includeLaunch, bool audclamp, bool rjtag, bool cleansmc, bool cr4, bool smcp, bool rgh3, bool bigffs, bool xdkbuild, bool xlusb, bool xlhdd, bool xlboth, bool fullDataClean, bool jasperSbOverride)
         {
             this._cpukey = cpukey;
             this._ttype = ttype;
@@ -491,6 +492,7 @@ namespace JRunner.Classes
             this._xlhdd = xlhdd;
             this._xlboth = xlboth;
             this._fullDataClean = fullDataClean;
+            this._jasperSbOverride = jasperSbOverride;
         }
 
         public List<int> getCBs()
@@ -902,6 +904,14 @@ namespace JRunner.Classes
 
             // Type overrides, check doSomeChecks() if changing
             string boardtype = _ctype.Ini;
+
+            if (_jasperSbOverride && (boardtype == "xenon" || boardtype == "zephyr" || boardtype == "falcon"))
+            {
+                // For the purposes of this check, we need to verify that there's a [jasperbl]
+                // section in the ini. We don't need to override to jaspersb here.
+                boardtype = "jasper";
+            }
+
             string ctypebtldr = boardtype + "bl";
             if (!File.Exists(ini)) return XebuildError.noinis;
             if (!parse_ini.getlabels(ini).Contains(ctypebtldr)) return XebuildError.nobootloaders;
@@ -1063,6 +1073,14 @@ namespace JRunner.Classes
             string iniFilePath = "";
             string iniFileBackupPath = "";
             string[] iniFileContentsBackup = { };
+
+            if (_jasperSbOverride && (boardtype == "xenon" || boardtype == "zephyr" || boardtype == "falcon"))
+            {
+                // For the purposes of this check, we need to force the board type to jaspersb
+                // so XeBuild produces an XSB image with the jasper bootloaders. Make sure to
+                // update doSomeChecks if this changes.
+                boardtype = "jaspersb";
+            }
 
             if (_ttype == variables.hacktypes.devgl)
             {

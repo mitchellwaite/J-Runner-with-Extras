@@ -32,7 +32,6 @@
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.MainTabs = new System.Windows.Forms.TabControl();
             this.tabXeBuild = new System.Windows.Forms.TabPage();
-            this.chkElpis = new System.Windows.Forms.CheckBox();
             this.Rgh3Label2 = new System.Windows.Forms.Label();
             this.Rgh3Label = new System.Windows.Forms.Label();
             this.Rgh3Mhz = new System.Windows.Forms.ComboBox();
@@ -102,12 +101,15 @@
             this.chkNoWrite = new System.Windows.Forms.CheckBox();
             this.btnXEUpdate = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.chkElpis = new System.Windows.Forms.CheckBox();
+            this.chkZeusKronos = new System.Windows.Forms.CheckBox();
             this.groupBox7.SuspendLayout();
             this.MainTabs.SuspendLayout();
             this.tabXeBuild.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dashBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dashDataSet)).BeginInit();
             this.tabPatches.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabOptions.SuspendLayout();
             this.tabClient.SuspendLayout();
@@ -140,7 +142,6 @@
             // tabXeBuild
             // 
             this.tabXeBuild.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
-            this.tabXeBuild.Controls.Add(this.chkElpis);
             this.tabXeBuild.Controls.Add(this.Rgh3Label2);
             this.tabXeBuild.Controls.Add(this.Rgh3Label);
             this.tabXeBuild.Controls.Add(this.Rgh3Mhz);
@@ -171,19 +172,6 @@
             this.tabXeBuild.Size = new System.Drawing.Size(323, 110);
             this.tabXeBuild.TabIndex = 0;
             this.tabXeBuild.Text = "Home";
-            // 
-            // chkElpis
-            // 
-            this.chkElpis.AutoSize = true;
-            this.chkElpis.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.chkElpis.Location = new System.Drawing.Point(229, 21);
-            this.chkElpis.Name = "chkElpis";
-            this.chkElpis.Size = new System.Drawing.Size(79, 17);
-            this.chkElpis.TabIndex = 100;
-            this.chkElpis.Text = "Elpis/Rhea";
-            this.toolTip1.SetToolTip(this.chkElpis, "Use 7378 CB_B for consoles with Elpis or Rhea GPUs");
-            this.chkElpis.UseVisualStyleBackColor = true;
-            this.chkElpis.CheckedChanged += new System.EventHandler(this.chkElpis_CheckedChanged);
             // 
             // Rgh3Label2
             // 
@@ -507,12 +495,14 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.chkZeusKronos);
+            this.groupBox2.Controls.Add(this.chkElpis);
             this.groupBox2.Location = new System.Drawing.Point(210, 3);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(104, 61);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Other Patches";
+            this.groupBox2.Text = "GPU Patches";
             // 
             // groupBox1
             // 
@@ -982,6 +972,33 @@
             this.btnXEUpdate.UseVisualStyleBackColor = true;
             this.btnXEUpdate.Click += new System.EventHandler(this.btnXEUpdate_Click);
             // 
+            // chkElpis
+            // 
+            this.chkElpis.AutoSize = true;
+            this.chkElpis.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.chkElpis.Location = new System.Drawing.Point(6, 18);
+            this.chkElpis.Name = "chkElpis";
+            this.chkElpis.Size = new System.Drawing.Size(79, 17);
+            this.chkElpis.TabIndex = 101;
+            this.chkElpis.Text = "Elpis/Rhea";
+            this.toolTip1.SetToolTip(this.chkElpis, "Use 7378 CB_B for consoles with Elpis or Rhea GPUs");
+            this.chkElpis.UseVisualStyleBackColor = true;
+            this.chkElpis.CheckedChanged += new System.EventHandler(this.chkElpis_CheckedChanged);
+            // 
+            // chkZeusKronos
+            // 
+            this.chkZeusKronos.AutoSize = true;
+            this.chkZeusKronos.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.chkZeusKronos.Location = new System.Drawing.Point(6, 37);
+            this.chkZeusKronos.Name = "chkZeusKronos";
+            this.chkZeusKronos.Size = new System.Drawing.Size(88, 17);
+            this.chkZeusKronos.TabIndex = 102;
+            this.chkZeusKronos.Text = "Zeus/Kronos";
+            this.toolTip1.SetToolTip(this.chkZeusKronos, "Use Jasper CB_B for Xenon, Zephyr, or Falcon consoles that have a Zeus or Kronos " +
+        "GPU installed");
+            this.chkZeusKronos.UseVisualStyleBackColor = true;
+            this.chkZeusKronos.CheckedChanged += new System.EventHandler(this.chkZeusKronos_CheckedChanged);
+            // 
             // XeBuildPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -998,6 +1015,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dashDataSet)).EndInit();
             this.tabPatches.ResumeLayout(false);
             this.tabPatches.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tabOptions.ResumeLayout(false);
@@ -1083,7 +1102,8 @@
         private System.Windows.Forms.CheckBox chkNoWrite;
         private System.Windows.Forms.Button btnXEUpdate;
         private System.Windows.Forms.CheckBox chkXLBoth;
-        private System.Windows.Forms.CheckBox chkElpis;
         private System.Windows.Forms.Label Rgh3Label2;
+        private System.Windows.Forms.CheckBox chkZeusKronos;
+        private System.Windows.Forms.CheckBox chkElpis;
     }
 }
