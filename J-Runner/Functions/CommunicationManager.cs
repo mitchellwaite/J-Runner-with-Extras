@@ -37,6 +37,7 @@ namespace CommPort
         //private RichTextBox _displayWindow;
         private TextBox _displayWindow;
         private bool stop = false;
+        private bool lastCharWasCR = false;
         //global manager variables
         private Color[] MessageColor = { Color.Lime, Color.Lime, Color.LimeGreen, Color.Orange, Color.Red };
         private SerialPort comPort = new SerialPort();
@@ -241,6 +242,26 @@ namespace CommPort
         }
         #endregion
 
+        #region NormalizeNewlines
+        /// <summary>
+        /// converts bare LF to CRLF so the TextBox renders line breaks,
+        /// leaving existing CRLF intact (including CRLF split across reads)
+        /// </summary>
+        /// <param name="msg">string to convert</param>
+        /// <returns>the string with CRLF line endings</returns>
+        private string NormalizeNewlines(string msg)
+        {
+            StringBuilder builder = new StringBuilder(msg.Length + 16);
+            foreach (char c in msg)
+            {
+                if (c == '\n' && !lastCharWasCR) builder.Append('\r');
+                builder.Append(c);
+                lastCharWasCR = c == '\r';
+            }
+            return builder.ToString();
+        }
+        #endregion
+
         #region DisplayData
         /// <summary>
         /// method to display the data to & from the port
@@ -260,7 +281,7 @@ namespace CommPort
                 _displayWindow.SelectedText = string.Empty;
                 //_displayWindow.SelectionFont = new Font(_displayWindow.SelectionFont, FontStyle.Bold);
                 //_displayWindow.SelectionColor = MessageColor[(int)type];
-                _displayWindow.AppendText(msg);
+                _displayWindow.AppendText(NormalizeNewlines(msg));
                 _displayWindow.ScrollToCaret();
             }));
             }
@@ -273,6 +294,7 @@ namespace CommPort
             try
             {
                 stop = false;
+                lastCharWasCR = false;
                 //first check if the port is already open
                 //if its open then close it
                 if (comPort.IsOpen == true) comPort.Close();
