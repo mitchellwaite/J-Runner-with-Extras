@@ -1051,12 +1051,19 @@ namespace JRunner.Classes
             string iniFileBackupPath = "";
             string[] iniFileContentsBackup = { };
 
-            if (_jasperSbOverride && (boardtype == "xenon" || boardtype == "zephyr" || boardtype == "falcon"))
+            if (_jasperSbOverride)
             {
                 // For the purposes of this check, we need to force the board type to jaspersb
-                // so XeBuild produces an XSB image with the jasper bootloaders. Make sure to
-                // update doSomeChecks if this changes.
-                boardtype = "jaspersb";
+                // or jaspersb64 so XeBuild produces an XSB image with the jasper bootloaders.
+                // Make sure to update doSomeChecks if this changes.
+                if (boardtype == "xenon" || boardtype == "zephyr" || boardtype == "falcon")
+                {
+                    boardtype = "jaspersb";
+                }
+                else if (boardtype == "xenon64" || boardtype == "zephyr64" || boardtype == "falcon64")
+                {
+                    boardtype = "jaspersb64";
+                }
             }
 
             if (_ttype == variables.hacktypes.devgl)
@@ -1118,6 +1125,8 @@ namespace JRunner.Classes
                 arguments = "-t " + _ttype;
             }
 
+            // For consoles with a big enough flashfs, use a different ini
+            // with the entire flashfs contained within
             if (_xdkbuild)
             {
                 if (boardtype == "jasperbb") // requires bigffs
@@ -1132,15 +1141,16 @@ namespace JRunner.Classes
                 {
                     arguments += " -c " + "coronabigffs -i flash";
                 }
-                else if (boardtype == "corona4g")
-                {
-                    arguments += " -c " + boardtype + " -i flash";
-                }
                 else if (boardtype == "winchesterbb") // requires bigffs
                 {
                     arguments += " -c " + "winchesterbigffs -i flash";
                 }
-                else if (boardtype == "winchester4g")
+                else if (boardtype == "corona4g"     ||
+                         boardtype == "winchester4g" ||
+                         boardtype == "xenon64"      ||
+                         boardtype == "zephyr64"     ||
+                         boardtype == "falcon64"     ||
+                         boardtype == "jaspersb64" )
                 {
                     arguments += " -c " + boardtype + " -i flash";
                 }
