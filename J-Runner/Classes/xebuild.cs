@@ -1007,8 +1007,7 @@ namespace JRunner.Classes
 
             if( (_xdkbuild && _ttype == variables.hacktypes.glitch2m) ||
                 _rgh3 ||
-                isDevglFor64MbConsoles() ||
-                isAffectedByXeBuildImageBug() )
+                isDevglFor64MbConsoles())
             {
                 return true;
             }
@@ -1030,28 +1029,6 @@ namespace JRunner.Classes
             if( _ttype == variables.hacktypes.devgl &&
                  false == variables.devkitnotdevgl &&
                  (_ctype.ID == 7 || _ctype.ID == 13 || _ctype.ID == 14) )
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private bool isAffectedByXeBuildImageBug()
-        {
-            // If we're building an image for one of the following console types,
-            // it is potentially affected by a bug in XeBuild that doesn't set the
-            // patch slot size and/or the KV offset and we need to patch the resulting image.
-
-            if ( _ctype.ID == 2  || // 16mb Falcon
-                 _ctype.ID == 3  || // 16mb Zephyr
-                 _ctype.ID == 5  || // 16mb Jasper XSB
-                 _ctype.ID == 7  || // 64mb Xenon
-                 _ctype.ID == 8  || // 16mb Xenon
-                 _ctype.ID == 13 || // 64mb Zephyr
-                 _ctype.ID == 14 )  // 64mb Falcon
             {
                 return true;
             }
@@ -1282,14 +1259,6 @@ namespace JRunner.Classes
                 //
                 if (success && postBuildActionsAreRequired())
                 {
-                    // There are bugs in XeBuild that break images generated for XSB consoles
-                    // - Patch slot size being unset results in XeLL but no dash
-                    // - KV offset being unset means XeLL won't show console details (DVD key, serial, etc.)
-                    if(isAffectedByXeBuildImageBug())
-                    {
-                        Nand.Nand.fixBuggyXeBuildImage(Path.Combine(variables.xefolder, variables.updflash));
-                    }
-
                     if (_xdkbuild && _rgh3)
                     {
                         MainForm.mainForm.XDKbuild.create(boardtype, true);
