@@ -135,7 +135,7 @@ namespace JRunner
             }
         }
         public static bool generate = false;
-        public static bool checkfiles = true, deletefiles = false, extractfiles = false, devkitnotdevgl = false;
+        public static bool checkfiles = true, deletefiles = false, extractfiles = false;
         public static string preferredDash = latest_dashboard.ToString();
         public static bool DashlaunchE = false;
         public static bool LPTtiming = false;

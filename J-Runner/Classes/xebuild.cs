@@ -274,201 +274,6 @@ namespace JRunner.Classes
             return blData;
         }
 
-        public static bool devgl64PreBuildActions(string boardtype, string iniFilePath, string xeBuildPatchFilePath, string cpukey)
-        {
-            byte[] xeBuildPatchFileBytes = { };
-            byte[] xeBuildSdPatchSectionBytes = { };
-            byte[] xeBuildKernelHvPatchSectionBytes = { };
-
-            try
-            {
-                xeBuildPatchFileBytes = File.ReadAllBytes(xeBuildPatchFilePath);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("DevGL image creation error: couldn't read patch file " + xeBuildPatchFilePath);
-                if (variables.debugMode) Console.WriteLine(ex.ToString());
-                return false;
-            }
-
-            xeBuildSdPatchSectionBytes = return4blPatchSet(xeBuildPatchFileBytes);
-            xeBuildKernelHvPatchSectionBytes = returnKernelHvPatchSet(xeBuildPatchFileBytes);
-
-            // Grab the board type from the ini file
-            string[] iniLines = File.ReadAllLines(iniFilePath);
-            int iniSdEntryLine = 0;
-
-            for (int i = 0; i < iniLines.Length; i++)
-            {
-                // xeBuild ini format for devkit/devgl goes like this:
-                // [{boardtype}bl]
-                // SB
-                // SC
-                // CD/SD
-                // CE/SE
-                // CF
-                // CG
-                // 
-                // The 2nd index line returned *should* be our SD
-                if (iniLines[i] == "[" + boardtype + "bl]")
-                {
-                    iniSdEntryLine = i + 3;
-                }
-            }
-
-            if (iniSdEntryLine == 0)
-            {
-                Console.WriteLine("DevGL image creation error: couldn't find [" + boardtype + "bl] section in " + iniFilePath);
-                return false;
-            }
-
-            // Split it by the comma so we get the filename and CRC
-            string[] sdLine = iniLines[iniSdEntryLine].Split(',');
-
-            if (variables.debugMode) Console.WriteLine("SD expected pre-patching: " + iniLines[iniSdEntryLine]);
-
-            string sdFileName = sdLine[0];
-            long sdIniCrc = Convert.ToInt64(sdLine[1], 16);
-
-            if(sdFileName.StartsWith("PATCH"))
-            {
-                Console.WriteLine("DevGL image creation error: can't patch an already-patched BL. Restore " + iniFilePath + " from a backup!");
-                return false;
-            }
-
-            // Now, search for the SD in one of two places:
-            // - In the same directory as the ini (likely here)
-            // - In the xeBuild\common folder (though for a devkit SD it's probably not there)
-            string sdFilePath = Path.Combine(Path.GetDirectoryName(iniFilePath), sdFileName);
-
-            if (!File.Exists(sdFilePath))
-            {
-                // Okay, it's not in the same directory as the ini
-                // Lets try the xeBuild common folder just in case
-                sdFilePath = Path.Combine(variables.rootfolder, @"xeBuild\common\" + sdFileName);
-
-                if (!File.Exists(sdFilePath))
-                {
-                    // It's not in one of the two places it could be.
-                    // We can't continue
-                    Console.WriteLine("DevGL image creation error: couldn't find " + sdFileName);
-                    return false;
-                }
-            }
-
-            // SD exists, calculate the CRC so we know we're starting from a known good binary
-            long sdFileCrc = calculateBlCrc(sdFilePath);
-
-            if (variables.debugMode) Console.WriteLine("SD calculated pre-patching: " + sdFileCrc.ToString("x"));
-
-            if (sdFileCrc != sdIniCrc)
-            {
-                Console.WriteLine("DevGL image creation error: " + sdFileName + " integrity check failed.");
-                Console.WriteLine("Calculated CRC: " + sdFileCrc.ToString("x"));
-                Console.WriteLine("Expected CRC: " + sdIniCrc.ToString("x"));
-                return false;
-            }
-
-            // We've got a good CRC, do the bootloader patch
-            byte[] patchedBlData = { };
-
-            try
-            {
-                patchedBlData = patchBootloader(File.ReadAllBytes(sdFilePath), xeBuildSdPatchSectionBytes);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("DevGL image creation error: couldn't patch " + sdFileName);
-                if (variables.debugMode) Console.WriteLine(ex.ToString());
-                return false;
-            }
-
-            // Now, recalculate the CRC and generate the string for the ini
-            string patchedSdFileName = "PATCH_" + sdFileName;
-            long patchedCRC = calculateBlCrc(patchedBlData);
-            string patchedIniString = patchedSdFileName + "," + patchedCRC.ToString("x");
-
-            if (variables.debugMode) Console.WriteLine("SD calculated post-patching: " + patchedIniString);
-
-            // Change the line in the ini file
-            iniLines[iniSdEntryLine] = patchedIniString;
-
-            // Write the BL to the dashboard folder
-            File.WriteAllBytes(Path.Combine(Path.GetDirectoryName(iniFilePath), patchedSdFileName), patchedBlData);
-
-            // Write the new ini file
-            File.WriteAllLines(iniFilePath, iniLines);
-
-            // We've patched the bootloader, now generate fuses+kernel patch binary file
-            byte[] vfuseAndKernelPatchData = new byte[0x60 + xeBuildKernelHvPatchSectionBytes.Length];
-
-            // bytes we use for making up the vfuses
-            // Fuseline 0 and 1 are always the same for a devkit
-            // 3/4 and 5/6 make up the CPU key
-            // CB LDV and CF/CG LDV can be left blank
-            byte[] fuseline0 = { 0xC0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-            byte[] fuseline1_dev = { 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F };
-            byte[] fuseline3_4 = Oper.StringToByteArray(cpukey.Substring(0, 16));
-            byte[] fuseline5_6 = Oper.StringToByteArray(cpukey.Substring(16, 16));
-
-            // Build the fake fuseset
-            Buffer.BlockCopy(fuseline0, 0, vfuseAndKernelPatchData, 0, 0x8);
-            Buffer.BlockCopy(fuseline1_dev, 0, vfuseAndKernelPatchData, 0x8, 0x8);
-            Buffer.BlockCopy(fuseline3_4, 0, vfuseAndKernelPatchData, 0x18, 0x8);
-            Buffer.BlockCopy(fuseline3_4, 0, vfuseAndKernelPatchData, 0x20, 0x8);
-            Buffer.BlockCopy(fuseline5_6, 0, vfuseAndKernelPatchData, 0x28, 0x8);
-            Buffer.BlockCopy(fuseline5_6, 0, vfuseAndKernelPatchData, 0x30, 0x8);
-
-            // Build the vfuse/kernel patch section
-            Buffer.BlockCopy(xeBuildKernelHvPatchSectionBytes, 0, vfuseAndKernelPatchData, 0x60, xeBuildKernelHvPatchSectionBytes.Length);
-
-            // Write the file to disk so xeBuild can pick it up
-            File.WriteAllBytes(Path.Combine(Path.GetDirectoryName(iniFilePath), "vfuses_khv.bin"), vfuseAndKernelPatchData);
-
-            // XeBuild does not set the XeLL startup reason for a devkit image.
-            // For the SD patches to know when to jump to XeLL, it must be set
-            // manually and can be patched in to the NAND image. Here, the XeLL
-            // startup reason is being set to 0x00 (ignore) and 0x12 (eject)
-            #region valid xell startup reasons
-            // IGNORE          = 0x00
-            // POWER           = 0x11
-            // EJECT           = 0x12
-            // UNDOCUMENTED_15 = 0x15
-            // UNDOCUMENTED_16 = 0x16
-            // REMOPOWER       = 0x20
-            // UNDOCUMENTED_21 = 0x21
-            // REMOX           = 0x22
-            // WINBUTTON       = 0x24
-            // UNDOCUMENTED_30 = 0x30
-            // UNDOCUMENTED_31 = 0x31
-            // KIOSK           = 0x41
-            // WIRELESSX       = 0x55
-            // WIREDXF1        = 0x56
-            // WIREDXF2        = 0x57
-            // WIREDXB2        = 0x58
-            // WIREDXB1        = 0x59
-            // WIREDXB3        = 0x5A
-            #endregion
-
-            byte[] xellStartupReason = { 0x00, 0x12 };
-            File.WriteAllBytes(Path.Combine(Path.GetDirectoryName(iniFilePath), "xell_reason.bin"), xellStartupReason);
-
-            return true;
-        }
-
-        public static void devgl64PostBuildActions(string iniFilePath)
-        {
-            // Delete all the patches we created in the pre-build step
-            string khv_path = Path.Combine(Path.GetDirectoryName(iniFilePath), "vfuses_khv.bin");
-            string xell_reason_path = Path.Combine(Path.GetDirectoryName(iniFilePath), "xell_reason.bin");
-
-            if(File.Exists(khv_path)) File.Delete(khv_path);
-            if(File.Exists(xell_reason_path)) File.Delete(xell_reason_path);
-
-            // When building a 64mb DevGL NAND, we need to manually zero-pair the SB as the last step
-            Nand.Nand.zeroPairDevkitSb(Path.Combine(variables.xefolder, variables.updflash), true);
-        }
-
         public void loadvariables(string cpukey, variables.hacktypes ttype, string dash, consoles ctype, List<string> patches, Nand.PrivateN nand, bool altoptions, bool DLpatches, bool includeLaunch, bool audclamp, bool rjtag, bool cleansmc, bool cr4, bool smcp, bool rgh3, bool bigffs, bool xdkbuild, bool xlusb, bool xlhdd, bool xlboth, bool fullDataClean, bool jasperSbOverride)
         {
             this._cpukey = cpukey;
@@ -1001,34 +806,9 @@ namespace JRunner.Classes
             //
             // 1) XDKBuild glitch2m images (we need to inject the SC)
             // 2) Any type of RGH3 image
-            // 3) DevGL images for console types 3 (64mb Xenon), 13 (64mb Zephyr), and 14 (64mb Falcon)
-            // 4) Any image type affected by the XeBuild bug where the patch slot size or KV offset is unset
             //
 
-            if( (_xdkbuild && _ttype == variables.hacktypes.glitch2m) ||
-                _rgh3 ||
-                isDevglFor64MbConsoles())
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private bool isDevglFor64MbConsoles()
-        {
-            // If we've selected the following options, we're building
-            // a 64mb DevGL image with the XeBuild devkit option
-            //
-            // 1) User selected DevGL
-            // 2) User did NOT enable "devkit instead of devgl" mode
-            // 3) The console is a 64mb xenon, zephyr, or falcon
-            //
-            if( _ttype == variables.hacktypes.devgl &&
-                 false == variables.devkitnotdevgl &&
-                 (_ctype.ID == 7 || _ctype.ID == 13 || _ctype.ID == 14) )
+            if( (_xdkbuild && _ttype == variables.hacktypes.glitch2m) || _rgh3)
             {
                 return true;
             }
@@ -1045,10 +825,6 @@ namespace JRunner.Classes
             pProcess.StartInfo.FileName = variables.rootfolder + @"\xeBuild\xeBuild.exe";
             string arguments = "";
             string boardtype = _ctype.XeBuild;
-            string patchFileBaseName = "";
-            string patchFilePath = "";
-            string iniFilePath = "";
-            string iniFileBackupPath = "";
             string[] iniFileContentsBackup = { };
 
             if (_jasperSbOverride)
@@ -1066,64 +842,7 @@ namespace JRunner.Classes
                 }
             }
 
-            if (_ttype == variables.hacktypes.devgl)
-            {
-                if (isDevglFor64MbConsoles())
-                {
-                    Console.WriteLine("Building 64mb DevGL image using XeBuild devkit mode");
-
-                    // To build a DevGL image for 64mb consoles successfully we need to
-                    // ensure the patch file exists so the post-build patch step can inject it
-                    patchFileBaseName = "patches_dev" + boardtype + ".bin";
-                    patchFilePath = variables.rootfolder + @"\xeBuild\" + _dash + "\\bin\\" + patchFileBaseName;
-                    if (!File.Exists(patchFilePath))
-                    {
-                        Console.WriteLine("Could not create 64mb DevGL image, " + patchFileBaseName + " for dashboard " + _dash + " missing.");
-                        return;
-                    }
-
-                    // We also need to make sure the ini file exists, because we'll need to pre-patch the SD
-                    iniFilePath = variables.rootfolder + @"\xeBuild\" + _dash + "\\_devkit.ini";
-                    iniFileBackupPath = iniFilePath + ".bak";
-
-                    if (!File.Exists(iniFilePath))
-                    {
-                        Console.WriteLine("Could not create 64mb DevGL image, _devgl.ini for dashboard " + _dash + " missing.");
-                        return;
-                    }
-
-                    // Make a backup of the ini file contents before we patch the ini and run XeBuild
-                    iniFileContentsBackup = File.ReadAllLines(iniFilePath);
-                    File.WriteAllLines(iniFileBackupPath, iniFileContentsBackup);
-
-                    if (!devgl64PreBuildActions(boardtype,iniFilePath,patchFilePath, _cpukey))
-                    {
-                        // If we failed to patch the SD and/or update the ini,
-                        // restore the ini contents from the backup and then bail
-                        File.WriteAllLines(iniFilePath, iniFileContentsBackup);
-                        if (File.Exists(iniFileBackupPath)) File.Delete(iniFileBackupPath);
-
-                        variables.xefinished = true;
-                        MainForm.mainForm.xPanel.xeExitActual(false);
-                        return;
-                    }
-
-                    arguments = "-t " + variables.hacktypes.devkit;
-                }
-                else if (variables.devkitnotdevgl)
-                {
-                    Console.WriteLine("Using devkit image type instead of DevGL");
-                    arguments = "-t " + variables.hacktypes.devkit;
-                }
-                else
-                {
-                    arguments = "-t " + variables.hacktypes.devgl;
-                }
-            }
-            else
-            {
-                arguments = "-t " + _ttype;
-            }
+            arguments = "-t " + _ttype;
 
             // For consoles with a big enough flashfs, use a different ini
             // with the entire flashfs contained within
@@ -1250,18 +969,6 @@ namespace JRunner.Classes
                 }
 
                 //
-                // Do any mandatory post build actions here
-                //
-                if (isDevglFor64MbConsoles())
-                {
-                    // Now that XeBuild is done, we can restore the contents of the
-                    // ini file and delete the backup. We have to do this regardless
-                    // of whether the build succeeded or failed
-                    File.WriteAllLines(iniFilePath, iniFileContentsBackup);
-                    if (File.Exists(iniFileBackupPath)) File.Delete(iniFileBackupPath);
-                }
-
-                //
                 // Any post-build actions on success here
                 //
                 // Ensure the postBuildActionsAreRequired
@@ -1285,10 +992,6 @@ namespace JRunner.Classes
                     else if (_rgh3)
                     {
                         MainForm.mainForm.rgh3Build.create(_ctype.Text, _cpukey, true);
-                    }
-                    else if (isDevglFor64MbConsoles())
-                    {
-                        devgl64PostBuildActions(iniFilePath);
                     }
                     else
                     {

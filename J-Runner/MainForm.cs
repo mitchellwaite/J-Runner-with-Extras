@@ -4686,19 +4686,6 @@ namespace JRunner
             {
                 new Thread(trykeys).Start();
             }
-            else if (e.KeyCode == Keys.F10)
-            {
-                if (!variables.devkitnotdevgl)
-                {
-                    variables.devkitnotdevgl = true;
-                    Console.WriteLine("Devkit instead of DevGL On");
-                }
-                else
-                {
-                    variables.devkitnotdevgl = false;
-                    Console.WriteLine("Devkit instead of DevGL Off");
-                }
-            }
             else if (e.KeyCode == Keys.F11)
             {
             }
